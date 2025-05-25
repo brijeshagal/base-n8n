@@ -45,6 +45,7 @@
       "dist/credentials/AzureStorageSharedKeyApi.credentials.js",
       "dist/credentials/BambooHrApi.credentials.js",
       "dist/credentials/BannerbearApi.credentials.js",
+      "dist/credentials/BaseAgentApi.credentials.js",
       "dist/credentials/BaserowApi.credentials.js",
       "dist/credentials/BeeminderApi.credentials.js",
       "dist/credentials/BitbucketApi.credentials.js",
@@ -444,6 +445,7 @@
       "dist/nodes/Aws/Transcribe/AwsTranscribe.node.js",
       "dist/nodes/BambooHr/BambooHr.node.js",
       "dist/nodes/Bannerbear/Bannerbear.node.js",
+      "dist/nodes/BaseAgent/BaseAgent.node.js",
       "dist/nodes/Baserow/Baserow.node.js",
       "dist/nodes/Beeminder/Beeminder.node.js",
       "dist/nodes/Bitbucket/BitbucketTrigger.node.js",
@@ -942,6 +944,10 @@
     "uuid": "catalog:",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.2/xlsx-0.20.2.tgz",
     "xml2js": "catalog:",
-    "xmlhttprequest-ssl": "3.1.0"
+    "xmlhttprequest-ssl": "3.1.0",
+    "@lifi/sdk": "^3.6.13",
+		"axios": "^1.9.0",
+		"moralis": "^2.27.2",
+		"viem": "^2.29.0"
   }
 }
