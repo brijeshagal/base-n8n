@@ -140,7 +140,6 @@ export class BaseAgent implements INodeType {
 								amount,
 								tokenAddress,
 							},
-							DEFAULT_CHAIN_ID,
 							privateKey,
 						);
 						break;

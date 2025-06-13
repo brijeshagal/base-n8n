@@ -1,4 +1,4 @@
-import type { INodeProperties } from 'n8n-workflow';
+import type { INodeProperties, NodePropertyTypes } from 'n8n-workflow';
 
 import { OPERATIONS, OPERATION_DESCRIPTIONS, OPERATION_DISPLAY_NAMES } from '../constants';
 import { STANDARD_ABIS } from '../functions/getStandardAbi';
@@ -91,8 +91,7 @@ export const swapTokenProperties: INodeProperties[] = [
 	{
 		displayName: 'From Token',
 		name: 'fromToken',
-		type: 'string',
-		typeOptions: { password: true },
+		type: 'string' as NodePropertyTypes,
 		required: true,
 		default: '',
 		description: 'The token to swap from (ticker symbol)',
@@ -105,8 +104,7 @@ export const swapTokenProperties: INodeProperties[] = [
 	{
 		displayName: 'To Token',
 		name: 'toToken',
-		type: 'string',
-		typeOptions: { password: true },
+		type: 'string' as NodePropertyTypes,
 		required: true,
 		default: '',
 		description: 'The token to swap to (ticker symbol)',
@@ -200,21 +198,21 @@ export const createNFTProperties: INodeProperties[] = [
 	},
 ];
 
+// Get Current Price Parameters
 export const getCurrentPriceProperties: INodeProperties[] = [
 	{
 		displayName: 'Token Symbol',
 		name: 'tokenSymbol',
-		type: 'string',
-		typeOptions: { password: true },
+		type: 'string' as NodePropertyTypes,
 		required: true,
-		default: '',
+		default: 'ETH',
 		description: 'The token symbol to get the price for (e.g., ETH, USDC, DAI)',
 		displayOptions: {
 			show: {
 				operation: [OPERATIONS.GET_CURRENT_PRICE],
 			},
 		},
-	},
+	}
 ];
 
 // Send Payment parameters
@@ -248,8 +246,7 @@ export const sendPaymentProperties: INodeProperties[] = [
 	{
 		displayName: 'Token Address',
 		name: 'tokenAddress',
-		type: 'string',
-		typeOptions: { password: true },
+		type: 'string' as NodePropertyTypes,
 		displayOptions: {
 			show: {
 				operation: [OPERATIONS.SEND_PAYMENT, OPERATIONS.PURCHASE_ITEM, OPERATIONS.EARN_YIELD],

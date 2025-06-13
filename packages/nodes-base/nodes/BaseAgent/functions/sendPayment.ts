@@ -1,52 +1,38 @@
+import { ChainId } from '@lifi/sdk';
 import type { Hex } from 'viem';
-import { createWalletClient, http, parseEther } from 'viem';
-import { base } from 'viem/chains';
+import { erc20Abi, parseEther, zeroAddress } from 'viem';
+
+import { getPublicClient, getWalletClient, viemChainsById } from '../utils/clients';
 
 interface SendPaymentParams {
 	to: string;
 	amount: string;
-	tokenAddress?: string; // Optional: if not provided, sends native token
+	tokenAddress?: string;
 }
 
-export async function sendPayment(params: SendPaymentParams, chainId: number, privateKey: Hex) {
-	// const publicClient = createPublicClient({
-	//     chain: base,
-	//     transport: http(),
-	// });
+export async function sendPayment(params: SendPaymentParams, privateKey: Hex) {
+	const publicClient = getPublicClient(ChainId.BAS);
 
-	const walletClient = createWalletClient({
-		account: privateKey,
-		chain: base,
-		transport: http(),
-	});
+	const { account, walletClient } = getWalletClient(ChainId.BAS, privateKey)
 
 	const { to, amount, tokenAddress } = params;
 
-	if (tokenAddress) {
-		// Send ERC20 token
-		const abi = [
-			{
-				name: 'transfer',
-				type: 'function',
-				stateMutability: 'nonpayable',
-				inputs: [
-					{ name: 'to', type: 'address' },
-					{ name: 'amount', type: 'uint256' },
-				],
-				outputs: [{ name: '', type: 'bool' }],
-			},
-		];
-
+	if (tokenAddress && tokenAddress !== zeroAddress) {
 		const hash = await walletClient.writeContract({
 			address: tokenAddress as Hex,
-			abi,
+			abi: erc20Abi,
 			functionName: 'transfer',
 			args: [to as Hex, parseEther(amount)],
+			chain: viemChainsById[ChainId.BAS],
+			account
+		});
+
+		const receipt = await publicClient.waitForTransactionReceipt({
+			hash,
 		});
 
 		return {
-			transactionHash: hash,
-			status: 'pending',
+			receipt,
 			type: 'ERC20',
 		};
 	} else {
@@ -54,11 +40,16 @@ export async function sendPayment(params: SendPaymentParams, chainId: number, pr
 		const hash = await walletClient.sendTransaction({
 			to: to as Hex,
 			value: parseEther(amount),
+			chain: viemChainsById[ChainId.BAS],
+			account
+		});
+
+		const receipt = await publicClient.waitForTransactionReceipt({
+			hash,
 		});
 
 		return {
-			transactionHash: hash,
-			status: 'pending',
+			receipt,
 			type: 'native',
 		};
 	}
