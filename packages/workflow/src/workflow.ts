@@ -7,6 +7,7 @@ import {
 	NODES_WITH_RENAMABLE_CONTENT,
 	STARTING_NODE_TYPES,
 } from './constants';
+import { UserError } from './errors';
 import { ApplicationError } from './errors/application.error';
 import { Expression } from './expression';
 import { getGlobalState } from './global-state';
@@ -379,6 +380,29 @@ export class Workflow {
 	 * @param {string} newName The new name
 	 */
 	renameNode(currentName: string, newName: string) {
+		// These keys are excluded to prevent accidental modification of inherited properties and
+		// to avoid any issues related to JavaScript's built-in methods that can cause unexpected behavior
+		const restrictedKeys = [
+			'hasOwnProperty',
+			'isPrototypeOf',
+			'propertyIsEnumerable',
+			'toLocaleString',
+			'toString',
+			'valueOf',
+			'constructor',
+			'prototype',
+			'__proto__',
+			'__defineGetter__',
+			'__defineSetter__',
+			'__lookupGetter__',
+			'__lookupSetter__',
+		];
+
+		if (restrictedKeys.map((k) => k.toLowerCase()).includes(newName.toLowerCase())) {
+			throw new UserError(`Node name "${newName}" is a restricted name.`, {
+				description: `Node names cannot be any of the following: ${restrictedKeys.join(', ')}`,
+			});
+		}
 		// Rename the node itself
 		if (this.nodes[currentName] !== undefined) {
 			this.nodes[newName] = this.nodes[currentName];
@@ -926,5 +950,39 @@ export class Workflow {
 		}
 
 		return this.__getStartNode(Object.keys(this.nodes));
+	}
+
+	getConnectionsBetweenNodes(
+		sources: string[],
+		targets: string[],
+	): Array<[IConnection, IConnection]> {
+		const result: Array<[IConnection, IConnection]> = [];
+
+		for (const source of sources) {
+			for (const type of Object.keys(this.connectionsBySourceNode[source] ?? {})) {
+				for (const sourceIndex of Object.keys(this.connectionsBySourceNode[source][type])) {
+					for (const connectionIndex of Object.keys(
+						this.connectionsBySourceNode[source][type][parseInt(sourceIndex, 10)] ?? [],
+					)) {
+						const targetConnectionData =
+							this.connectionsBySourceNode[source][type][parseInt(sourceIndex, 10)]?.[
+								parseInt(connectionIndex, 10)
+							];
+						if (targetConnectionData && targets.includes(targetConnectionData?.node)) {
+							result.push([
+								{
+									node: source,
+									index: parseInt(sourceIndex, 10),
+									type: type as NodeConnectionType,
+								},
+								targetConnectionData,
+							]);
+						}
+					}
+				}
+			}
+		}
+
+		return result;
 	}
 }
